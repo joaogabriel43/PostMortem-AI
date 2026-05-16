@@ -29,3 +29,27 @@ management:
   endpoint:
     health:
       show-details: always
+
+# ── OpenAI Configuration ──────────────────────────────────────────
+openai:
+  api-key: ${OPENAI_API_KEY:dummy-key-for-tests}
+  base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+  connect-timeout: 5s
+  read-timeout: 30s
+
+# ── Resiliency (SRE) ──────────────────────────────────────────────
+resilience4j:
+  retry:
+    instances:
+      openai:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+  circuitbreaker:
+    instances:
+      openai:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 40
+        slow-call-duration-threshold: 30s
