@@ -15,6 +15,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
+import com.postmortemai.infrastructure.persistence.repository.IncidentJpaRepository;
+import com.postmortemai.infrastructure.persistence.repository.PostMortemJpaRepository;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +27,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.NONE,
         properties = {
-                "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration"
+                "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration",
+                "spring.flyway.enabled=false",
+                "spring.datasource.url="
         }
 )
 @ActiveProfiles("dev")
@@ -33,6 +39,12 @@ class OpenAIClientIntegrationTest {
     static WireMockExtension wireMock = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort())
             .build();
+
+    @MockBean
+    private IncidentJpaRepository incidentJpaRepository;
+
+    @MockBean
+    private PostMortemJpaRepository postMortemJpaRepository;
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
