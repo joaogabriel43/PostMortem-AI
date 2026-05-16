@@ -1,0 +1,8 @@
+{"timestamp":"2026-05-16T10:00:00.000Z","level":"INFO","message":"Application started on port 8080"}
+{"timestamp":"2026-05-16T10:00:01.123Z","level":"INFO","message":"Connected to database postmortemai"}
+{"timestamp":"2026-05-16T10:00:05.456Z","level":"DEBUG","message":"Cache warmed up with 1240 entries"}
+{"timestamp":"2026-05-16T10:01:00.000Z","level":"WARN","message":"High memory usage detected: 87% of heap"}
+{"timestamp":"2026-05-16T10:01:15.200Z","level":"ERROR","message":"Unhandled exception in request handler"}
+{"timestamp":"2026-05-16T10:01:15.201Z","level":"ERROR","message":"Database connection pool exhausted after 30s timeout"}
+{"timestamp":"2026-05-16T10:01:30.000Z","level":"INFO","message":"Circuit breaker opened for service: inventory-api"}
+{"timestamp":"2026-05-16T10:02:00.000Z","level":"ERROR","message":"Health check failed: downstream service unreachable"}

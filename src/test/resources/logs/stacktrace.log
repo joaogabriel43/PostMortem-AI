@@ -1,0 +1,20 @@
+2026-05-16 10:01:15.200 ERROR [http-nio-8080-exec-1] c.p.PostMortemController - Unexpected error processing request
+java.lang.NullPointerException: Cannot invoke method getUser() on null object reference
+	at com.postmortemai.service.PostMortemService.buildContext(PostMortemService.java:87)
+	at com.postmortemai.service.PostMortemService.generate(PostMortemService.java:45)
+	at com.postmortemai.controller.PostMortemController.handle(PostMortemController.java:62)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+Caused by: java.lang.IllegalStateException: Session context not initialized
+	at com.postmortemai.auth.SessionManager.getCurrent(SessionManager.java:34)
+	at com.postmortemai.service.PostMortemService.buildContext(PostMortemService.java:85)
+	... 14 more
+2026-05-16 10:01:15.350 WARN  [http-nio-8080-exec-1] c.p.filter.RequestFilter - Request rejected after exception
+2026-05-16 10:01:20.000 INFO  [scheduled-task-1] c.p.health.HealthChecker - Running scheduled health check
+2026-05-16 10:01:20.100 ERROR [scheduled-task-1] c.p.health.HealthChecker - Database ping failed: Connection refused to localhost:5434
+org.postgresql.util.PSQLException: Connection refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:303)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:51)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:225)
+	... 42 more

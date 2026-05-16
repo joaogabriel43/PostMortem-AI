@@ -1,0 +1,18 @@
+2026-05-16 09:55:00 INFO  Application starting up - version 1.4.2
+2026-05-16 09:55:01 INFO  Loading configuration from /etc/postmortemai/config.yml
+2026-05-16 09:55:02 DEBUG Cache provider initialized with TTL=300s
+2026-05-16 09:55:05 INFO  Database connection established
+2026-05-16 10:00:00 INFO  Scheduled job [log-rotation] started
+2026-05-16 10:00:05 TRACE Entering method: LogRotationService.rotate()
+2026-05-16 10:00:10 DEBUG Rotating file: app.log.1 -> app.log.2
+2026-05-16 10:00:10 DEBUG Rotating file: app.log.1 -> app.log.2
+2026-05-16 10:00:10 DEBUG Rotating file: app.log.1 -> app.log.2
+2026-05-16 10:01:00 WARN  Disk usage at 91% - log rotation may be impacted
+2026-05-16 10:01:05 ERROR Failed to write rotated log: No space left on device
+2026-05-16 10:01:05 ERROR Failed to write rotated log: No space left on device
+2026-05-16 10:01:10 ERROR Critical: application cannot write logs - shutting down log writer
+2026-05-16 10:01:15 WARN  Retry #1 for log write failed
+2026-05-16 10:01:20 WARN  Retry #2 for log write failed
+2026-05-16 10:01:25 ERROR Shutdown initiated due to unrecoverable log writer failure
+2026-05-16 10:01:26 INFO  Flushing in-memory buffers before shutdown
+2026-05-16 10:01:27 INFO  Shutdown complete
