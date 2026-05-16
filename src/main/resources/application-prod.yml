@@ -1,0 +1,22 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Profile: prod
+# Native PostgreSQL driver — no P6Spy overhead in production.
+# All credentials are mandatory via environment variables.
+# ──────────────────────────────────────────────────────────────────────────────
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
+
+logging:
+  level:
+    com.postmortemai: INFO
+    root: WARN
