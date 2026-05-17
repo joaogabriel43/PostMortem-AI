@@ -9,6 +9,7 @@ import com.postmortemai.infrastructure.persistence.entity.IncidentEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class IncidentRepositoryAdapter implements IncidentRepositoryPort {
@@ -29,6 +30,12 @@ public class IncidentRepositoryAdapter implements IncidentRepositoryPort {
     @Override
     public Optional<Incident> findByRawLogHash(String rawLogHash) {
         return jpaRepository.findByRawLogHash(rawLogHash)
+                .map(this::mapToDomain);
+    }
+
+    @Override
+    public Optional<Incident> findById(UUID id) {
+        return jpaRepository.findById(id)
                 .map(this::mapToDomain);
     }
 

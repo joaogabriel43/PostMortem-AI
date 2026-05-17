@@ -7,6 +7,7 @@ import java.util.UUID;
 public record PostMortemResponse(
         UUID id,
         UUID incidentId,
+        String severity,
         String title,
         String summary,
         String timeline,
@@ -19,10 +20,11 @@ public record PostMortemResponse(
         String exportedMarkdown,
         LocalDateTime createdAt
 ) {
-    public static PostMortemResponse fromDomain(PostMortem postMortem) {
+    public static PostMortemResponse fromDomain(PostMortem postMortem, String severity) {
         return new PostMortemResponse(
                 postMortem.id(),
                 postMortem.incidentId(),
+                severity,
                 postMortem.title(),
                 postMortem.summary(),
                 postMortem.timeline(),

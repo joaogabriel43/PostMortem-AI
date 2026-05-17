@@ -1,5 +1,6 @@
 package com.postmortemai.presentation.controller;
 
+import com.postmortemai.application.port.IncidentRepositoryPort;
 import com.postmortemai.application.exception.ResourceNotFoundException;
 import com.postmortemai.application.service.PostMortemService;
 import com.postmortemai.application.usecase.ExportPostMortemUseCase;
@@ -20,10 +21,16 @@ public class IncidentController {
 
     private final PostMortemService postMortemService;
     private final ExportPostMortemUseCase exportPostMortemUseCase;
+    private final IncidentRepositoryPort incidentRepositoryPort;
 
-    public IncidentController(PostMortemService postMortemService, ExportPostMortemUseCase exportPostMortemUseCase) {
+    public IncidentController(
+            PostMortemService postMortemService,
+            ExportPostMortemUseCase exportPostMortemUseCase,
+            IncidentRepositoryPort incidentRepositoryPort
+    ) {
         this.postMortemService = postMortemService;
         this.exportPostMortemUseCase = exportPostMortemUseCase;
+        this.incidentRepositoryPort = incidentRepositoryPort;
     }
 
     @PostMapping
@@ -44,16 +51,24 @@ public class IncidentController {
                 request.rawLog()
         );
 
+        String severity = incidentRepositoryPort.findById(postMortem.incidentId())
+                .map(incident -> incident.severity() != null ? incident.severity().name() : "P3")
+                .orElse("P3");
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(PostMortemResponse.fromDomain(postMortem));
+                .body(PostMortemResponse.fromDomain(postMortem, severity));
     }
 
     @GetMapping("/{id}/postmortem")
     public ResponseEntity<PostMortemResponse> getPostMortem(@PathVariable UUID id) {
         PostMortem postMortem = postMortemService.getPostMortemByIncidentId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post-Mortem not found for incident ID: " + id));
+
+        String severity = incidentRepositoryPort.findById(id)
+                .map(incident -> incident.severity() != null ? incident.severity().name() : "P3")
+                .orElse("P3");
         
-        return ResponseEntity.ok(PostMortemResponse.fromDomain(postMortem));
+        return ResponseEntity.ok(PostMortemResponse.fromDomain(postMortem, severity));
     }
 
     @GetMapping("/{id}/postmortem/export")

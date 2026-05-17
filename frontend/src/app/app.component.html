@@ -1,0 +1,23 @@
+<header class="navbar">
+  <div class="nav-container">
+    <a routerLink="/" class="logo">
+      <span class="logo-text">PostMortem</span> <span class="logo-ai">AI</span>
+    </a>
+    <nav class="nav-links">
+      <a routerLink="/" class="nav-link">Painel</a>
+      <a routerLink="/incidents/new" class="nav-btn">Registrar Incidente</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+  <div class="footer-container">
+    <p>&copy; 2026 PostMortem AI. Todos os direitos reservados. Arquitetura SRE de Resiliência Ativa.</p>
+  </div>
+</footer>
+
+<app-toast-container></app-toast-container>
