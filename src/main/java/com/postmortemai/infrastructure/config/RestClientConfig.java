@@ -1,7 +1,6 @@
 package com.postmortemai.infrastructure.config;
 
-import org.springframework.boot.http.client.ClientHttpRequestFactorySettings;
-import org.springframework.boot.web.client.ClientHttpRequestFactories;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -15,11 +14,11 @@ public class RestClientConfig {
 
     @Bean
     public RestClient restClient(OpenAiProperties properties, RestClient.Builder builder) {
-        ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS
-                .withConnectTimeout(properties.getConnectTimeout())
-                .withReadTimeout(properties.getReadTimeout());
-
-        ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(settings);
+        org.springframework.http.client.SimpleClientHttpRequestFactory requestFactory = 
+                new org.springframework.http.client.SimpleClientHttpRequestFactory();
+        
+        requestFactory.setConnectTimeout((int) properties.getConnectTimeout().toMillis());
+        requestFactory.setReadTimeout((int) properties.getReadTimeout().toMillis());
 
         return builder
                 .requestFactory(requestFactory)

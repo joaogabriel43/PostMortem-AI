@@ -3,6 +3,7 @@ package com.postmortemai.infrastructure.persistence.repository;
 import com.postmortemai.application.port.PostMortemRepositoryPort;
 import com.postmortemai.domain.model.PostMortem;
 import com.postmortemai.infrastructure.persistence.entity.PostMortemEntity;
+import com.postmortemai.infrastructure.persistence.entity.IncidentEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -31,9 +32,12 @@ public class PostMortemRepositoryAdapter implements PostMortemRepositoryPort {
     }
 
     private PostMortemEntity mapToEntity(PostMortem domain) {
-        return new PostMortemEntity(
+        org.springframework.data.jpa.repository.support.SimpleJpaRepository proxy;
+        IncidentEntity incidentProxy = new IncidentEntity(domain.incidentId(), null, null, null, null, null, null);
+
+        PostMortemEntity entity = new PostMortemEntity(
                 domain.id(),
-                domain.incidentId(),
+                incidentProxy,
                 domain.title(),
                 domain.summary(),
                 domain.timeline(),
@@ -43,15 +47,16 @@ public class PostMortemRepositoryAdapter implements PostMortemRepositoryPort {
                 domain.contributingFactors(),
                 domain.actionItems(),
                 domain.lessonsLearned(),
-                domain.exportedMarkdown(),
                 domain.createdAt()
         );
+        entity.setExportedMarkdown(domain.exportedMarkdown());
+        return entity;
     }
 
     private PostMortem mapToDomain(PostMortemEntity entity) {
         return new PostMortem(
                 entity.getId(),
-                entity.getIncidentId(),
+                entity.getIncident().getId(),
                 entity.getTitle(),
                 entity.getSummary(),
                 entity.getTimeline(),
