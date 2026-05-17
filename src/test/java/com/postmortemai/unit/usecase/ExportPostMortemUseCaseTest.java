@@ -60,7 +60,6 @@ class ExportPostMortemUseCaseTest {
         when(postMortemRepositoryPort.findByIncidentId(incidentId)).thenReturn(Optional.of(postMortem));
         
         when(markdownExporter.supports(ExportFormat.MARKDOWN)).thenReturn(true);
-        when(pdfExporter.supports(ExportFormat.MARKDOWN)).thenReturn(false);
 
         String generatedMarkdown = "# Generated Markdown Report";
         byte[] contentBytes = generatedMarkdown.getBytes(StandardCharsets.UTF_8);

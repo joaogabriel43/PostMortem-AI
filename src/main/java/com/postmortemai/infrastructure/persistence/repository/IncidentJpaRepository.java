@@ -2,6 +2,7 @@ package com.postmortemai.infrastructure.persistence.repository;
 
 import com.postmortemai.infrastructure.persistence.entity.IncidentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.UUID;
