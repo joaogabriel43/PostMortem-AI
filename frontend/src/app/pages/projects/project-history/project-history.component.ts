@@ -38,70 +38,73 @@ interface PageResult<T> {
         <div class="loading-state">
           <span class="spinner"></span> Carregando histórico...
         </div>
-      } @else if (pageResult() && pageResult()!.data.length > 0) {
-        @let res = pageResult()!;
-        <div class="table-container">
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th>Severidade</th>
-                <th>Status</th>
-                <th>Título do Post-Mortem</th>
-                <th>Registrado Em</th>
-                <th class="actions-header">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (item of res.data; track item.id) {
-                <tr>
-                  <td>
-                    <span class="badge" [ngClass]="item.severity.toLowerCase()">{{ item.severity }}</span>
-                  </td>
-                  <td>
-                    <span class="status-indicator" [ngClass]="item.status.toLowerCase()">
-                      {{ item.status }}
-                    </span>
-                  </td>
-                  <td class="pm-title">{{ item.title }}</td>
-                  <td class="date-cell">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
-                  <td class="actions-cell">
-                    <a [routerLink]="['/incidents', item.id]" class="view-btn">
-                      Ver Relatório →
-                    </a>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <div class="pagination">
-          <button 
-            [disabled]="currentPage() === 0" 
-            (click)="goToPage(currentPage() - 1)" 
-            class="btn btn-nav"
-          >
-            ← Anterior
-          </button>
-          
-          <span class="page-info">
-            Página {{ currentPage() + 1 }} de {{ res.totalPages }} ({{ res.totalElements }} total)
-          </span>
-
-          <button 
-            [disabled]="currentPage() >= res.totalPages - 1" 
-            (click)="goToPage(currentPage() + 1)" 
-            class="btn btn-nav"
-          >
-            Próxima →
-          </button>
-        </div>
       } @else {
-        <div class="empty-state">
-          <h3>Nenhum Post-Mortem registrado</h3>
-          <p>Nenhum log ou incidente foi relatado para o projeto "{{ projectName() }}" ainda.</p>
-          <a routerLink="/incidents/new" class="btn btn-primary margin-top">Relatar Primeiro Incidente</a>
-        </div>
+        @if (pageResult(); as res) {
+          @if (res.data.length > 0) {
+            <div class="table-container">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>Severidade</th>
+                    <th>Status</th>
+                    <th>Título do Post-Mortem</th>
+                    <th>Registrado Em</th>
+                    <th class="actions-header">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of res.data; track item.id) {
+                    <tr>
+                      <td>
+                        <span class="badge" [ngClass]="item.severity.toLowerCase()">{{ item.severity }}</span>
+                      </td>
+                      <td>
+                        <span class="status-indicator" [ngClass]="item.status.toLowerCase()">
+                          {{ item.status }}
+                        </span>
+                      </td>
+                      <td class="pm-title">{{ item.title }}</td>
+                      <td class="date-cell">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td class="actions-cell">
+                        <a [routerLink]="['/incidents', item.id]" class="view-btn">
+                          Ver Relatório →
+                        </a>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination">
+              <button 
+                [disabled]="currentPage() === 0" 
+                (click)="goToPage(currentPage() - 1)" 
+                class="btn btn-nav"
+              >
+                ← Anterior
+              </button>
+              
+              <span class="page-info">
+                Página {{ currentPage() + 1 }} de {{ res.totalPages }} ({{ res.totalElements }} total)
+              </span>
+
+              <button 
+                [disabled]="currentPage() >= res.totalPages - 1" 
+                (click)="goToPage(currentPage() + 1)" 
+                class="btn btn-nav"
+              >
+                Próxima →
+              </button>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <h3>Nenhum Post-Mortem registrado</h3>
+              <p>Nenhum log ou incidente foi relatado para o projeto "{{ projectName() }}" ainda.</p>
+              <a routerLink="/incidents/new" class="btn btn-primary margin-top">Relatar Primeiro Incidente</a>
+            </div>
+          }
+        }
       }
     </div>
   `,

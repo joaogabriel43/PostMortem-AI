@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { ToastService } from '../../../../services/toast.service';
+import { ToastService } from '../../../services/toast.service';
 
 interface PostMortemResponse {
   id: string;
@@ -35,91 +35,92 @@ interface PostMortemResponse {
         <div class="loading-state">
           <span class="spinner"></span> Carregando detalhes do Post-Mortem...
         </div>
-      } @else if (postMortem()) {
-        @let pm = postMortem()!;
-        <div class="postmortem-header">
-          <div class="title-section">
-            <span class="badge" [ngClass]="pm.severity.toLowerCase()">{{ pm.severity }}</span>
-            <h1>{{ pm.title }}</h1>
-          </div>
-          <div class="actions">
-            <button (click)="download('markdown')" class="btn btn-secondary btn-icon">
-              📥 Exportar MD
-            </button>
-            <button (click)="download('pdf')" class="btn btn-primary btn-icon">
-              📥 Exportar PDF
-            </button>
-          </div>
-        </div>
-
-        <div class="postmortem-grid">
-          <div class="main-card">
-            <h2>Resumo Executivo</h2>
-            <p class="section-content">{{ pm.summary }}</p>
-          </div>
-
-          <div class="side-grid">
-            <div class="info-card">
-              <h4>Metadados</h4>
-              <div class="meta-item">
-                <span class="meta-label">ID do Incidente:</span>
-                <span class="meta-value">{{ pm.incidentId }}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Criado Em:</span>
-                <span class="meta-value">{{ pm.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="sections-container">
-          <div class="section-card">
-            <h2>Cronologia dos Fatos (Timeline)</h2>
-            <div class="section-content whitespace-pre">{{ pm.timeline }}</div>
-          </div>
-
-          <div class="section-card">
-            <h2>Causa Raiz (Root Cause)</h2>
-            <div class="section-content whitespace-pre">{{ pm.rootCause }}</div>
-          </div>
-
-          <div class="section-card">
-            <h2>Impacto (Impact Description)</h2>
-            <div class="section-content whitespace-pre">{{ pm.impact }}</div>
-          </div>
-
-          <div class="section-card">
-            <h2>Estratégia de Detecção</h2>
-            <div class="section-content whitespace-pre">{{ pm.detection }}</div>
-          </div>
-
-          @if (pm.contributingFactors) {
-            <div class="section-card">
-              <h2>Fatores Contribuintes</h2>
-              <div class="section-content whitespace-pre">{{ pm.contributingFactors }}</div>
-            </div>
-          }
-
-          @if (pm.actionItems) {
-            <div class="section-card">
-              <h2>Plano de Ações Corretivas</h2>
-              <div class="section-content whitespace-pre">{{ pm.actionItems }}</div>
-            </div>
-          }
-
-          @if (pm.lessonsLearned) {
-            <div class="section-card">
-              <h2>Lições Aprendidas</h2>
-              <div class="section-content whitespace-pre">{{ pm.lessonsLearned }}</div>
-            </div>
-          }
-        </div>
       } @else {
-        <div class="error-state">
-          <h3>Post-Mortem não encontrado</h3>
-          <p>O relatório solicitado não pôde ser carregado.</p>
-        </div>
+        @if (postMortem(); as pm) {
+          <div class="postmortem-header">
+            <div class="title-section">
+              <span class="badge" [ngClass]="pm.severity.toLowerCase()">{{ pm.severity }}</span>
+              <h1>{{ pm.title }}</h1>
+            </div>
+            <div class="actions">
+              <button (click)="download('markdown')" class="btn btn-secondary btn-icon">
+                📥 Exportar MD
+              </button>
+              <button (click)="download('pdf')" class="btn btn-primary btn-icon">
+                📥 Exportar PDF
+              </button>
+            </div>
+          </div>
+
+          <div class="postmortem-grid">
+            <div class="main-card">
+              <h2>Resumo Executivo</h2>
+              <p class="section-content">{{ pm.summary }}</p>
+            </div>
+
+            <div class="side-grid">
+              <div class="info-card">
+                <h4>Metadados</h4>
+                <div class="meta-item">
+                  <span class="meta-label">ID do Incidente:</span>
+                  <span class="meta-value">{{ pm.incidentId }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Criado Em:</span>
+                  <span class="meta-value">{{ pm.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sections-container">
+            <div class="section-card">
+              <h2>Cronologia dos Fatos (Timeline)</h2>
+              <div class="section-content whitespace-pre">{{ pm.timeline }}</div>
+            </div>
+
+            <div class="section-card">
+              <h2>Causa Raiz (Root Cause)</h2>
+              <div class="section-content whitespace-pre">{{ pm.rootCause }}</div>
+            </div>
+
+            <div class="section-card">
+              <h2>Impacto (Impact Description)</h2>
+              <div class="section-content whitespace-pre">{{ pm.impact }}</div>
+            </div>
+
+            <div class="section-card">
+              <h2>Estratégia de Detecção</h2>
+              <div class="section-content whitespace-pre">{{ pm.detection }}</div>
+            </div>
+
+            @if (pm.contributingFactors) {
+              <div class="section-card">
+                <h2>Fatores Contribuintes</h2>
+                <div class="section-content whitespace-pre">{{ pm.contributingFactors }}</div>
+              </div>
+            }
+
+            @if (pm.actionItems) {
+              <div class="section-card">
+                <h2>Plano de Ações Corretivas</h2>
+                <div class="section-content whitespace-pre">{{ pm.actionItems }}</div>
+              </div>
+            }
+
+            @if (pm.lessonsLearned) {
+              <div class="section-card">
+                <h2>Lições Aprendidas</h2>
+                <div class="section-content whitespace-pre">{{ pm.lessonsLearned }}</div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="error-state">
+            <h3>Post-Mortem não encontrado</h3>
+            <p>O relatório solicitado não pôde ser carregado.</p>
+          </div>
+        }
       }
     </div>
   `,
