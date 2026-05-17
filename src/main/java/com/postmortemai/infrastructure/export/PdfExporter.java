@@ -31,10 +31,11 @@ public class PdfExporter implements PostMortemExporter {
             String markdown = new String(markdownBytes, StandardCharsets.UTF_8);
 
             // 2. Convert to HTML with SUPPRESS_HTML to strip malicious <script> / <iframe>
-            Parser parser = Parser.builder().build();
-            HtmlRenderer renderer = HtmlRenderer.builder()
-                    .set(HtmlRenderer.SUPPRESS_HTML, true)
-                    .build();
+            com.vladsch.flexmark.util.data.MutableDataSet options = new com.vladsch.flexmark.util.data.MutableDataSet();
+            options.set(HtmlRenderer.SUPPRESS_HTML, true);
+
+            Parser parser = Parser.builder(options).build();
+            HtmlRenderer renderer = HtmlRenderer.builder(options).build();
 
             Node documentNode = parser.parse(markdown);
             String html = renderer.render(documentNode);
@@ -54,5 +55,10 @@ public class PdfExporter implements PostMortemExporter {
         } catch (Exception e) {
             throw new RuntimeException("Failed to export PostMortem to PDF", e);
         }
+    }
+
+    @Override
+    public boolean supports(com.postmortemai.application.dto.ExportFormat format) {
+        return format == com.postmortemai.application.dto.ExportFormat.PDF;
     }
 }

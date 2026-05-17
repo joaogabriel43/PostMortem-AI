@@ -34,4 +34,9 @@ public class MarkdownExporter implements PostMortemExporter {
 
         return sb.toString().trim().getBytes(StandardCharsets.UTF_8);
     }
+
+    @Override
+    public boolean supports(com.postmortemai.application.dto.ExportFormat format) {
+        return format == com.postmortemai.application.dto.ExportFormat.MARKDOWN;
+    }
 }
