@@ -53,3 +53,7 @@ resilience4j:
         failure-rate-threshold: 50
         slow-call-rate-threshold: 40
         slow-call-duration-threshold: 30s
+
+# ── App Properties ────────────────────────────────────────────────
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
