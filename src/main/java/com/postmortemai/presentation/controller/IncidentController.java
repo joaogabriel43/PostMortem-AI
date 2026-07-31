@@ -3,15 +3,19 @@ package com.postmortemai.presentation.controller;
 import com.postmortemai.application.port.IncidentRepositoryPort;
 import com.postmortemai.application.exception.ResourceNotFoundException;
 import com.postmortemai.application.service.PostMortemService;
+import com.postmortemai.application.service.AsyncPostMortemService;
 import com.postmortemai.application.usecase.ExportPostMortemUseCase;
 import com.postmortemai.application.dto.ExportFormat;
 import com.postmortemai.application.dto.ExportedDocument;
 import com.postmortemai.domain.model.PostMortem;
 import com.postmortemai.presentation.dto.IncidentRequest;
 import com.postmortemai.presentation.dto.PostMortemResponse;
+import com.postmortemai.presentation.dto.TaskResponse;
+import com.postmortemai.presentation.sse.SseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.UUID;
 
@@ -20,21 +24,27 @@ import java.util.UUID;
 public class IncidentController {
 
     private final PostMortemService postMortemService;
+    private final AsyncPostMortemService asyncPostMortemService;
     private final ExportPostMortemUseCase exportPostMortemUseCase;
     private final IncidentRepositoryPort incidentRepositoryPort;
+    private final SseService sseService;
 
     public IncidentController(
             PostMortemService postMortemService,
+            AsyncPostMortemService asyncPostMortemService,
             ExportPostMortemUseCase exportPostMortemUseCase,
-            IncidentRepositoryPort incidentRepositoryPort
+            IncidentRepositoryPort incidentRepositoryPort,
+            SseService sseService
     ) {
         this.postMortemService = postMortemService;
+        this.asyncPostMortemService = asyncPostMortemService;
         this.exportPostMortemUseCase = exportPostMortemUseCase;
         this.incidentRepositoryPort = incidentRepositoryPort;
+        this.sseService = sseService;
     }
 
     @PostMapping
-    public ResponseEntity<PostMortemResponse> createIncident(@RequestBody IncidentRequest request) {
+    public ResponseEntity<TaskResponse> createIncident(@RequestBody IncidentRequest request) {
         if (request.projectName() == null || request.projectName().isBlank()) {
             throw new IllegalArgumentException("projectName is required");
         }
@@ -45,18 +55,16 @@ public class IncidentController {
             throw new IllegalArgumentException("rawLog is required");
         }
 
-        PostMortem postMortem = postMortemService.generatePostMortem(
-                request.projectName(),
-                request.serviceName(),
-                request.rawLog()
-        );
+        UUID taskId = UUID.randomUUID();
+        asyncPostMortemService.generateAsync(taskId, request.projectName(), request.serviceName(), request.rawLog());
 
-        String severity = incidentRepositoryPort.findById(postMortem.incidentId())
-                .map(incident -> incident.severity() != null ? incident.severity().name() : "P3")
-                .orElse("P3");
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(new TaskResponse(taskId, "Processamento iniciado"));
+    }
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(PostMortemResponse.fromDomain(postMortem, severity));
+    @GetMapping(value = "/tasks/{taskId}/sse", produces = org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamSse(@PathVariable UUID taskId) {
+        return sseService.createEmitter(taskId);
     }
 
     @GetMapping("/{id}/postmortem")

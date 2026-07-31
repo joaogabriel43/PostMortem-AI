@@ -112,19 +112,19 @@ class IncidentControllerE2ETest {
                 "2026-05-16 10:00:00 ERROR Connection refused"
         );
 
-        ResponseEntity<PostMortemResponse> response = restTemplate.postForEntity(
-                "/api/v1/incidents", request, PostMortemResponse.class);
+        ResponseEntity<com.postmortemai.presentation.dto.TaskResponse> response = restTemplate.postForEntity(
+                "/api/v1/incidents", request, com.postmortemai.presentation.dto.TaskResponse.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        PostMortemResponse body = response.getBody();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        com.postmortemai.presentation.dto.TaskResponse body = response.getBody();
         assertThat(body).isNotNull();
-        assertThat(body.title()).isEqualTo("Database Outage");
-        assertThat(body.exportedMarkdown()).contains("# Database Outage");
+        assertThat(body.taskId()).isNotNull();
 
-        // Verify Database state
-        assertThat(incidentRepository.findAll()).hasSize(1);
-        assertThat(postMortemRepository.findAll()).hasSize(1);
-        assertThat(postMortemRepository.findAll().get(0).getIncident().getId()).isEqualTo(body.incidentId());
+        // Verify Database state using Awaitility since processing is async
+        org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(10)).untilAsserted(() -> {
+            assertThat(incidentRepository.findAll()).hasSize(1);
+            assertThat(postMortemRepository.findAll()).hasSize(1);
+        });
         
         wireMock.verify(2, postRequestedFor(urlEqualTo("/chat/completions")));
     }

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -6,19 +6,9 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { ToastService } from '../../../services/toast.service';
 
-interface PostMortemResponse {
-  id: string;
-  incidentId: string;
-  title: string;
-  summary: string;
-  timeline: string;
-  rootCause: string;
-  impact: string;
-  detection: string;
-  contributingFactors?: string;
-  actionItems?: string;
-  lessonsLearned?: string;
-  createdAt: string;
+interface TaskResponse {
+  taskId: string;
+  message: string;
 }
 
 @Component({
@@ -81,7 +71,7 @@ interface PostMortemResponse {
             [disabled]="loading() || !incidentForm.form.valid"
           >
             @if (loading()) {
-              <span class="spinner"></span> Analisando Logs com IA Resiliente...
+              <span class="spinner"></span> {{ loadingMessage() }}
             } @else {
               Gerar Post-Mortem Automático
             }
@@ -200,15 +190,18 @@ export class IncidentNewComponent {
   rawLog = '';
 
   loading = signal(false);
+  loadingMessage = signal('Iniciando processamento...');
 
   private http = inject(HttpClient);
   private router = inject(Router);
   private toastService = inject(ToastService);
+  private ngZone = inject(NgZone);
 
   submitIncident() {
     if (!this.projectName || !this.serviceName || !this.rawLog) return;
 
     this.loading.set(true);
+    this.loadingMessage.set('Iniciando envio...');
 
     const payload = {
       projectName: this.projectName,
@@ -216,18 +209,51 @@ export class IncidentNewComponent {
       rawLog: this.rawLog
     };
 
-    this.http.post<PostMortemResponse>(`${environment.apiUrl}/incidents`, payload)
+    this.http.post<TaskResponse>(`${environment.apiUrl}/incidents`, payload)
       .subscribe({
         next: (response) => {
-          this.loading.set(false);
-          this.toastService.show('Post-Mortem gerado com sucesso!', 'success');
-          // Navigate to details screen using the incidentId
-          this.router.navigate(['/incidents', response.incidentId]);
+          this.loadingMessage.set('Enviado. Conectando fila SSE...');
+          this.connectSse(response.taskId);
         },
         error: (err) => {
           this.loading.set(false);
-          // Handled by HTTP error interceptor, showing toast automatically
         }
       });
+  }
+
+  private connectSse(taskId: string) {
+    const eventSource = new EventSource(`${environment.apiUrl}/incidents/tasks/${taskId}/sse`);
+
+    eventSource.addEventListener('PROCESSING', (event: MessageEvent) => {
+      this.ngZone.run(() => {
+        this.loadingMessage.set(event.data);
+      });
+    });
+
+    eventSource.addEventListener('COMPLETED', (event: MessageEvent) => {
+      this.ngZone.run(() => {
+        this.toastService.show('Post-Mortem gerado com sucesso!', 'success');
+        const data = JSON.parse(event.data);
+        eventSource.close();
+        this.router.navigate(['/incidents', data.incidentId]);
+      });
+    });
+
+    eventSource.addEventListener('FAILED', (event: MessageEvent) => {
+      this.ngZone.run(() => {
+        const data = JSON.parse(event.data);
+        this.toastService.show(`Erro na geração: ${data.error}`, 'error');
+        this.loading.set(false);
+        eventSource.close();
+      });
+    });
+
+    eventSource.onerror = (error) => {
+      this.ngZone.run(() => {
+        this.toastService.show('Conexão SSE perdida.', 'error');
+        this.loading.set(false);
+        eventSource.close();
+      });
+    };
   }
 }
