@@ -1,5 +1,7 @@
 package com.postmortemai.application.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import com.postmortemai.domain.model.PostMortem;
 import com.postmortemai.presentation.sse.SseService;
 import org.slf4j.Logger;
@@ -17,14 +19,21 @@ public class AsyncPostMortemService {
     private static final Logger logger = LoggerFactory.getLogger(AsyncPostMortemService.class);
     private final PostMortemService postMortemService;
     private final SseService sseService;
+    private final MeterRegistry meterRegistry;
 
-    public AsyncPostMortemService(PostMortemService postMortemService, SseService sseService) {
+    public AsyncPostMortemService(
+            PostMortemService postMortemService,
+            SseService sseService,
+            MeterRegistry meterRegistry
+    ) {
         this.postMortemService = postMortemService;
         this.sseService = sseService;
+        this.meterRegistry = meterRegistry;
     }
 
     @Async("postMortemTaskExecutor")
     public void generateAsync(UUID taskId, String projectName, String serviceName, String rawLog) {
+        Timer.Sample sample = Timer.start(meterRegistry);
         try {
             logger.info("Starting async post-mortem generation for task {}", taskId);
             sseService.sendEvent(taskId, "PROCESSING", "Iniciando processamento do log com IA...");
@@ -39,12 +48,18 @@ public class AsyncPostMortemService {
             
             sseService.sendEvent(taskId, "COMPLETED", response);
             sseService.complete(taskId);
+            
+            meterRegistry.counter("postmortem.generations.total", "status", "success").increment();
         } catch (Exception e) {
             logger.error("Error during async generation for task {}", taskId, e);
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", e.getMessage());
             sseService.sendEvent(taskId, "FAILED", errorResponse);
             sseService.completeWithError(taskId, e);
+            
+            meterRegistry.counter("postmortem.generations.total", "status", "failure").increment();
+        } finally {
+            sample.stop(meterRegistry.timer("postmortem.generation.duration"));
         }
     }
 }
