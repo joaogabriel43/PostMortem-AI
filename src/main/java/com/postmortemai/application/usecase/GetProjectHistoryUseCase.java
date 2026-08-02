@@ -4,6 +4,7 @@ import com.postmortemai.application.dto.PageQuery;
 import com.postmortemai.application.dto.PageResult;
 import com.postmortemai.application.dto.ProjectHistoryItem;
 import com.postmortemai.application.port.IncidentRepositoryPort;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +16,7 @@ public class GetProjectHistoryUseCase {
         this.incidentRepositoryPort = incidentRepositoryPort;
     }
 
+    @Cacheable(value = "project-history", key = "#projectName + '-' + #pageQuery.page + '-' + #pageQuery.size")
     public PageResult<ProjectHistoryItem> execute(String projectName, PageQuery pageQuery) {
         return incidentRepositoryPort.findHistoryByProject(projectName, pageQuery);
     }

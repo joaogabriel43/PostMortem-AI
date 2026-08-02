@@ -57,3 +57,18 @@ resilience4j:
 # ── App Properties ────────────────────────────────────────────────
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:4200}
+
+# ── Rate Limiting (Bucket4j) ──────────────────────────────────────
+bucket4j:
+  enabled: true
+  filters:
+    - cache-name: rate-limit
+      url: /api/v1/incidents
+      http-response-body: "{ \"error\": \"Too many requests. Please try again later.\" }"
+      rate-limits:
+        - cache-key: "getRemoteAddr()"
+          bandwidths:
+            - capacity: 5
+              time: 1
+              unit: minutes
+              refill-speed: greedy
